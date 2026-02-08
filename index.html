@@ -3,49 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منظم الكيمياء الرقمي 🧪</title>
+    <title>منظمي الكيميائي الخاص 🧪</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root { --primary: #0288d1; --bg: #f1f8fe; --card-bg: #ffffff; }
         body { font-family: 'Cairo', sans-serif; background-color: var(--bg); margin: 0; padding-bottom: 50px; }
-        header { background: var(--primary); color: white; padding: 25px; text-align: center; border-radius: 0 0 25px 25px; }
-        .container { max-width: 900px; margin: 20px auto; padding: 0 15px; }
-        .subject-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
-        .card { background: var(--card-bg); border-radius: 15px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-right: 6px solid var(--primary); }
-        .btn-opt { background: #e1f5fe; color: #01579b; padding: 10px; border-radius: 10px; cursor: pointer; border: none; font-weight: bold; flex: 1; margin: 5px; }
+        header { background: var(--primary); color: white; padding: 20px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .container { max-width: 800px; margin: auto; padding: 15px; }
+        .card { background: white; border-radius: 12px; padding: 15px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-right: 5px solid var(--primary); }
+        .user-section { background: #fff; padding: 20px; border-radius: 15px; margin-bottom: 20px; text-align: center; border: 2px solid #bbdefb; }
+        input[type="text"] { width: 90%; padding: 12px; border-radius: 8px; border: 2px solid #ddd; text-align: center; font-size: 1.1rem; margin: 10px 0; outline: none; }
+        input[type="text"]:focus { border-color: var(--primary); }
         #editor { display: none; }
-        .section-box { background: white; padding: 18px; border-radius: 15px; margin-bottom: 15px; border: 1px solid #e0e0e0; }
-        h3 { margin-top: 0; color: var(--primary); font-size: 1rem; }
-        textarea { width: 100%; border: 1px solid #cfd8dc; border-radius: 10px; padding: 12px; font-family: 'Cairo'; box-sizing: border-box; resize: vertical; }
-        .btn-save { background: #43a047; color: white; padding: 15px; border-radius: 12px; cursor: pointer; border: none; width: 100%; font-size: 1.1rem; font-weight: bold; }
+        textarea { width: 100%; border: 1px solid #ddd; border-radius: 8px; padding: 10px; box-sizing: border-box; font-family: 'Cairo'; font-size: 1rem; }
+        .btn { background: var(--primary); color: white; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .btn:hover { opacity: 0.9; transform: translateY(-1px); }
+        .btn-save { background: #2e7d32; width: 100%; margin-top: 15px; font-size: 1.1rem; }
+        .info-box { text-align: right; background: #fffef2; padding: 15px; border-radius: 8px; border: 1px solid #ffe082; margin-bottom: 15px; font-size: 0.9rem; }
     </style>
 </head>
 <body>
 
 <header>
-    <h1>مساعد الكيمياء السحابي 🧪</h1>
-    <p>المرحلة الثالثة | تنظيم الملاحظات والمهام</p>
+    <h1>📓 دفتري السحابي الخاص</h1>
+    <p id="user-display">مرحباً بك في نظام التدوين الآمن</p>
 </header>
 
 <div id="home-page" class="container">
-    <div class="subject-grid" id="grid"></div>
+    <div class="user-section" id="login-box">
+        <h3 style="color: var(--primary);">🔐 إعداد وصولك الخاص</h3>
+        
+        <div class="info-box">
+            <p><strong>⚠️ تعليمات الخصوصية والأمان:</strong></p>
+            <ul style="padding-right: 20px;">
+                <li>هذا الرمز هو مفتاحك لرؤية ملاحظاتك.</li>
+                <li><strong>تجنب</strong> استخدام معلومات حقيقية (اسمك، تليفونك).</li>
+                <li><strong>استخدم</strong> رمزاً عشوائياً (مثال: <span style="color:red">Zq#99x</span>).</li>
+                <li>احفظ الرمز جيداً؛ فبدونه لا يمكن استرجاع بياناتك نهائياً.</li>
+            </ul>
+        </div>
+
+        <input type="text" id="user-key" placeholder="أدخل رمزك العشوائي هنا...">
+        <button class="btn" onclick="setUser()">فتح دفتري الخاص</button>
+    </div>
+
+    <div id="subjects-list" style="display:none;">
+        <div id="grid"></div>
+        <button class="btn" onclick="logout()" style="background:#78909c; margin-top:25px; width:100%">تغيير الرمز (تسجيل خروج) 🔄</button>
+    </div>
 </div>
 
 <div id="editor" class="container">
-    <button onclick="goHome()" style="background:#78909c; color:white; padding:8px 20px; border-radius:8px; border:none; cursor:pointer; margin-bottom:15px; font-family:'Cairo';">🏠 رجوع</button>
-    <h2 id="edit-title" style="color:var(--primary); text-align:center;"></h2>
+    <button onclick="goHome()" class="btn" style="background:#607d8b; padding: 8px 15px;">🏠 رجوع للرئيسية</button>
+    <h2 id="edit-title" style="text-align:center; color:var(--primary); margin: 20px 0;"></h2>
     
-    <div class="section-box"><h3>📝 ملخص المحاضرة</h3><textarea id="in-summary" rows="4"></textarea></div>
-    <div class="section-box"><h3>✅ المهام والواجبات</h3><textarea id="in-tasks" rows="3"></textarea></div>
-    <div class="section-box"><h3>💡 تنبيهات الاختبار</h3><textarea id="in-alerts" rows="2"></textarea></div>
-    <div class="section-box"><h3>🔗 روابط مهمة</h3><textarea id="in-links" rows="2"></textarea></div>
+    <div class="card"><h3>📝 ملخصي الشخصي</h3><textarea id="in-summary" rows="5"></textarea></div>
+    <div class="card"><h3>✅ مهامي وواجباتي</h3><textarea id="in-tasks" rows="3"></textarea></div>
+    <div class="card"><h3>💡 تنبيهات الامتحانات</h3><textarea id="in-alerts" rows="2"></textarea></div>
+    <div class="card"><h3>🔗 روابط ومصادر</h3><textarea id="in-links" rows="2"></textarea></div>
 
-    <button class="btn-save" id="save-btn" onclick="saveToCloud()">حفظ البيانات سحابياً ✅</button>
+    <button class="btn btn-save" id="save-btn" onclick="saveToCloud()">حفظ في سحابتي الخاصة ✅</button>
 </div>
 
 <script>
-    // بيانات الربط الخاصة بك
+    // بيانات الربط
     const SUPABASE_URL = 'https://jxpzssoclvikjqyzbend.supabase.co'; 
     const SUPABASE_KEY = 'sb_publishable_P0QFRGCOPmqSOvmF_YgWhA_WgTeqZ4u';
     const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -61,24 +83,60 @@
     ];
 
     let activeID = "";
+    let currentUser = localStorage.getItem('my_private_key') || "";
+
+    function checkUser() {
+        if (currentUser) {
+            document.getElementById('login-box').style.display = 'none';
+            document.getElementById('subjects-list').style.display = 'block';
+            document.getElementById('user-display').innerText = `المستخدم الحالي: [ ${currentUser} ]`;
+            render();
+        }
+    }
+
+    function setUser() {
+        const key = document.getElementById('user-key').value.trim();
+        if (key.length < 5) return alert("يرجى اختيار رمز عشوائي قوي (أكثر من 5 أحرف)");
+        
+        if (confirm("هل قمت بحفظ الرمز؟ لن تستطيع فتح ملاحظاتك بدونه.")) {
+            localStorage.setItem('my_private_key', key);
+            currentUser = key;
+            checkUser();
+        }
+    }
+
+    function logout() {
+        if(confirm("هل تريد الخروج؟ تأكد من حفظ رمزك لتعود مجدداً.")) {
+            localStorage.removeItem('my_private_key');
+            location.reload();
+        }
+    }
 
     function render() {
         const grid = document.getElementById('grid');
         grid.innerHTML = subjects.map(s => `
             <div class="card">
-                <h3>${s.name}</h3>
-                <div style="display:flex; flex-wrap:wrap;">${s.types.map(t => `<button class="btn-opt" onclick="openEditor('${s.name}','${t}')">${t}</button>`).join('')}</div>
+                <h3 style="margin:0; color:#333;">${s.name}</h3>
+                <div style="display:flex; gap:10px; margin-top:10px">
+                    ${s.types.map(t => `<button class="btn" style="flex:1" onclick="openEditor('${s.name}','${t}')">${t}</button>`).join('')}
+                </div>
             </div>`).join('');
     }
 
     async function openEditor(sub, type) {
         activeID = `${sub}-${type}`;
+        // دمج الرمز مع المادة لخلق معرف فريد لا يتكرر
+        const combinedKey = `${currentUser}_${activeID}`;
+
         document.getElementById('home-page').style.display = 'none';
         document.getElementById('editor').style.display = 'block';
         document.getElementById('edit-title').innerText = activeID;
         
-        // جلب البيانات المخزونة لهذه المادة
-        const { data } = await _supabase.from('study_data').select('content').eq('subject_id', activeID).maybeSingle();
+        // جلب البيانات الخاصة بالرمز المدمج
+        const { data } = await _supabase.from('study_data')
+            .select('content')
+            .eq('subject_id', combinedKey)
+            .maybeSingle();
         
         if (data && data.content) {
             const c = data.content;
@@ -89,13 +147,13 @@
         } else {
             document.querySelectorAll('textarea').forEach(t => t.value = "");
         }
-        window.scrollTo(0,0);
     }
 
     async function saveToCloud() {
         const btn = document.getElementById('save-btn');
-        btn.innerText = "جاري الحفظ...";
+        btn.innerText = "جاري الحفظ الشخصي...";
         
+        const combinedKey = `${currentUser}_${activeID}`;
         const payload = {
             summary: document.getElementById('in-summary').value,
             tasks: document.getElementById('in-tasks').value,
@@ -103,18 +161,18 @@
             links: document.getElementById('in-links').value
         };
 
-        const { error } = await _supabase
-            .from('study_data')
-            .upsert({ subject_id: activeID, content: payload }, { onConflict: 'subject_id' });
+        const { error } = await _supabase.from('study_data').upsert({ 
+            subject_id: combinedKey, 
+            content: payload 
+        }, { onConflict: 'subject_id' });
         
         if (error) {
-            alert("فشل الحفظ: " + error.message);
+            alert("خطأ: " + error.message);
             btn.innerText = "❌ فشل";
         } else {
-            btn.innerText = "تم الحفظ بنجاح ✅";
+            btn.innerText = "تم الحفظ في دفترك ✅";
         }
-        
-        setTimeout(() => btn.innerText = "حفظ البيانات سحابياً ✅", 2000);
+        setTimeout(() => btn.innerText = "حفظ في دفتري الخاص ✅", 2000);
     }
 
     function goHome() { 
@@ -122,7 +180,7 @@
         document.getElementById('editor').style.display = 'none'; 
     }
 
-    render();
+    checkUser();
 </script>
 </body>
 </html>
