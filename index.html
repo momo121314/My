@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منظم دراسة الكيمياء - النسخة المستقرة</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1976d2; /* أزرق سمائي غامق للعناوين */
+            --accent: #2196f3;
+            --bg: #e3f2fd;    /* سمائي خفيف جداً للخلفية */
+            --card-bg: #ffffff;
+            --text: #2c3e50;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background: var(--primary);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .container { max-width: 900px; margin: -20px auto 50px; padding: 0 20px; }
+
+        .subject-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+            border-top: 5px solid var(--accent);
+            transition: 0.3s;
+        }
+
+        .card:hover { transform: translateY(-5px); }
+
+        .btn-group { display: flex; gap: 10px; margin-top: 15px; }
+        
+        button {
+            cursor: pointer; border: none; border-radius: 12px;
+            font-family: 'Cairo'; font-weight: bold; transition: 0.3s;
+        }
+
+        .btn-opt { background: #bbdefb; color: #0d47a1; padding: 10px; flex: 1; }
+        .btn-opt:hover { background: var(--accent); color: white; }
+
+        /* صفحة المحرر */
+        #editor { display: none; padding-top: 40px; }
+
+        .section-box {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+        }
+
+        h3 { color: var(--primary); margin-bottom: 10px; font-size: 1.1rem; }
+
+        textarea, input[type="text"] {
+            width: 100%; border: 1px solid #d1d9e6; border-radius: 10px;
+            padding: 12px; font-family: 'Cairo'; box-sizing: border-box;
+        }
+
+        .file-upload {
+            border: 2px dashed var(--accent);
+            padding: 20px;
+            text-align: center;
+            border-radius: 10px;
+            background: #f0f7ff;
+        }
+
+        .save-bar {
+            position: sticky; bottom: 20px; display: flex; gap: 10px;
+        }
+
+        .btn-save { background: #2ecc71; color: white; padding: 15px; flex: 2; font-size: 1.1rem; }
+        .btn-back { background: #95a5a6; color: white; flex: 1; }
+    </style>
+</head>
+<body>
+
+<div id="home-page">
+    <header>
+        <h1>دفتر الكيمياء الذكي 🧪</h1>
+        <p>المرحلة الثالثة | إدارة شاملة للمواد والملفات</p>
+    </header>
+    <div class="container">
+        <div class="subject-grid" id="grid"></div>
+    </div>
+</div>
+
+<div id="editor" class="container">
+    <div id="editor-content">
+        <h2 id="edit-title" style="text-align: center; color: var(--primary);"></h2>
+
+        <div class="section-box">
+            <h3>📝 ملخص المحاضرة</h3>
+            <textarea id="in-summary" rows="4" placeholder="ماذا شرح الدكتور اليوم؟"></textarea>
+        </div>
+
+        <div class="section-box">
+            <h3>✅ المهام والواجبات</h3>
+            <textarea id="in-tasks" rows="3" placeholder="هل يوجد امتحان أو واجب؟"></textarea>
+        </div>
+
+        <div class="section-box">
+            <h3>💡 ملاحظات الاختبار</h3>
+            <textarea id="in-alerts" rows="2" placeholder="أشياء مهمة ركز عليها الدكتور..."></textarea>
+        </div>
+
+        <div class="section-box">
+            <h3>🔗 روابط الشرح (يوتيوب/مواقع)</h3>
+            <textarea id="in-links" rows="2" placeholder="ضع الروابط هنا..."></textarea>
+        </div>
+
+        <div class="section-box">
+            <h3>📁 ملف الـ PDF (من جهازك)</h3>
+            <div class="file-upload">
+                <input type="file" id="pdf-file" accept="application/pdf" onchange="processPDF(this)">
+                <p id="pdf-status" style="margin-top:10px; font-weight:bold; color:var(--primary);">لم يتم رفع ملف بعد</p>
+            </div>
+        </div>
+
+        <div class="save-bar">
+            <button class="btn-back" onclick="goHome()">🏠 عودة</button>
+            <button class="btn-save" onclick="save()">حفظ البيانات ✅</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const subjects = [
+        { name: "الكيمياء العضوية", types: ["نظري", "عملي"] },
+        { name: "الكيمياء الكهربائية", types: ["نظري", "عملي"] },
+        { name: "الكيمياء الحياتية", types: ["نظري", "عملي"] },
+        { name: "الكيمياء التناسقية", types: ["نظري", "عملي"] },
+        { name: "الكيمياء الصناعية", types: ["نظري"] },
+        { name: "منهجية البحث العلمي", types: ["نظري"] },
+        { name: "تقنيات النانو", types: ["نظري"] }
+    ];
+
+    let activeID = "";
+    let base64PDF = "";
+
+    function render() {
+        const grid = document.getElementById('grid');
+        grid.innerHTML = subjects.map(s => `
+            <div class="card">
+                <h3>${s.name}</h3>
+                <div class="btn-group">
+                    ${s.types.map(t => `<button class="btn-opt" onclick="openEditor('${s.name}','${t}')">${t}</button>`).join('')}
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function openEditor(sub, type) {
+        activeID = `${sub}-${type}`;
+        document.getElementById('home-page').style.display = 'none';
+        document.getElementById('editor').style.display = 'block';
+        document.getElementById('edit-title').innerText = `${sub} (${type})`;
+        
+        const data = JSON.parse(localStorage.getItem(activeID)) || {};
+        document.getElementById('in-summary').value = data.summary || "";
+        document.getElementById('in-tasks').value = data.tasks || "";
+        document.getElementById('in-alerts').value = data.alerts || "";
+        document.getElementById('in-links').value = data.links || "";
+        base64PDF = data.pdf || "";
+        document.getElementById('pdf-status').innerText = base64PDF ? "✅ الملف موجود ومحفوظ" : "لم يتم رفع ملف بعد";
+        window.scrollTo(0,0);
+    }
+
+    function processPDF(input) {
+        const file = input.files[0];
+        if (file.size > 2000000) { // تنبيه إذا كان الملف أكبر من 2MB لضمان سرعة المتصفح
+            alert("الملف كبير جداً، يفضل اختيار ملفات أصغر أو استخدامه كروابط درايف.");
+        }
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            base64PDF = e.target.result;
+            document.getElementById('pdf-status').innerText = "✅ تم تحميل الملف بنجاح";
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function save() {
+        const data = {
+            summary: document.getElementById('in-summary').value,
+            tasks: document.getElementById('in-tasks').value,
+            alerts: document.getElementById('in-alerts').value,
+            links: document.getElementById('in-links').value,
+            pdf: base64PDF
+        };
+        localStorage.setItem(activeID, JSON.stringify(data));
+        alert("تم الحفظ بنجاح في ذاكرة المتصفح!");
+    }
+
+    function goHome() {
+        document.getElementById('home-page').style.display = 'block';
+        document.getElementById('editor').style.display = 'none';
+    }
+
+    render();
+</script>
+</body>
+</html>
